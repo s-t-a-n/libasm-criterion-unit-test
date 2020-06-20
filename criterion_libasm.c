@@ -6,7 +6,7 @@
 /*   By: sverschu </var/mail/sverschu>                +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/11/24 13:21:37 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/06/20 16:04:44 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/06/20 19:57:48 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,7 +143,7 @@ Test(strings, ft_strcmp_segv2, .signal = SIGSEGV)
 }
 #endif
 
-void test_ft_strlen(char *str1, char *str2)
+void test_ft_strcmp(char *str1, char *str2)
 {
 #if STRNCMP_SIGN
 	cr_expect(((ft_strcmp(str1, str2) > 0) && (strcmp(str1, str2) > 0)) || ((ft_strcmp(str1, str2) < 0) && (strcmp(str1, str2) < 0)) || ((ft_strcmp(str1, str2) == 0) && (strcmp(str1, str2) == 0)) == 1, "Your ft_strcmp doesnt work for s1{%s} s2{%s}", str1, str2);
@@ -159,50 +159,50 @@ Test(strings, ft_strcmp)
 
 	str1 = "a";
 	str2 = "b";
-	test_ft_strlen(a, b);
+	test_ft_strcmp(str1, str2);
 
 	str1 = "a\0";
 	str2 = "b\200";
-	test_ft_strlen(a, b);
+	test_ft_strcmp(str1, str2);
 
 	str1 = "aa";
 	str2 = "b";
-	test_ft_strlen(a, b);
+	test_ft_strcmp(str1, str2);
 	
 	str1 = "a";
 	str2 = "bb";
-	test_ft_strlen(a, b);
+	test_ft_strcmp(str1, str2);
 
 	str1 = "aYallaaaaa";
 	str2 = "bYallaaaaa";
-	test_ft_strlen(a, b);
+	test_ft_strcmp(str1, str2);
 
 	str1 = "Yallbaaaa";
 	str2 = "Yallaaaaa";
-	test_ft_strlen(a, b);
+	test_ft_strcmp(str1, str2);
 
 	str1 = "";
 	str2 = "Yallaaaaa";
-	test_ft_strlen(a, b);
+	test_ft_strcmp(str1, str2);
 
 	str1 = "Yallaaaaa";
 	str2 = "";
-	test_ft_strlen(a, b);
+	test_ft_strcmp(str1, str2);
 
 	str1 = "";
 	str2 = "";
-	test_ft_strlen(a, b);
+	test_ft_strcmp(str1, str2);
 
 	str1 = "a";
 	str2 = "b";
-	test_ft_strlen(a, b);
+	test_ft_strcmp(str1, str2);
 
 #if RANDOMIZED_TESTS
 	for (long i = -ITERATIONS; i < ITERATIONS; i++)
 	{
 		str1 = CRIT_randstring(ITERATIONS);
 		str2 = CRIT_randstring(ITERATIONS);
-		test_ft_strlen(a, b);
+		test_ft_strcmp(str1, str2);
 		free(str1);
 		free(str2);
 	}
@@ -225,7 +225,7 @@ void test_ft_strcpy(char *src, char *dst1, char *dst2)
 {
 	memset(dst1, 'A', MEMSIZE);
 	memset(dst2, 'A', MEMSIZE);
-	cr_expect_eq(ft_strcpy(dst1, src), strcpy(dst2, src),"Your ft_strcpy doesnt work for src{%s} n{%i}", src, (int)n);
+	cr_expect_eq(ft_strcpy(dst1, src), strcpy(dst2, src),"Your ft_strcpy doesnt work for src{%s}", src);
 	cr_expect(memcmp(dst1, dst2, MEMSIZE) == 0,"Your ft_strcpy doesnt work -> strlcpy{%s}, ft_strcpy{%s}", dst1, dst2);
 }
 
