@@ -6,7 +6,7 @@
 /*   By: sverschu </var/mail/sverschu>                +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2019/11/24 13:21:37 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/06/20 19:57:48 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/06/22 18:41:50 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -221,12 +221,12 @@ Test(strings, ft_strcpy_segv2, .signal = SIGSEGV)
 }
 #endif
 
-void test_ft_strcpy(char *src, char *dst1, char *dst2)
+bool	test_ft_strcpy(char *src, char *dst1, char *dst2)
 {
 	memset(dst1, 'A', MEMSIZE);
 	memset(dst2, 'A', MEMSIZE);
-	cr_expect_eq(ft_strcpy(dst1, src), strcpy(dst2, src),"Your ft_strcpy doesnt work for src{%s}", src);
-	cr_expect(memcmp(dst1, dst2, MEMSIZE) == 0,"Your ft_strcpy doesnt work -> strlcpy{%s}, ft_strcpy{%s}", dst1, dst2);
+	strcpy(dst2, src);
+	return(ft_strcpy(dst1, src) == dst1 && memcmp(dst1, dst2, MEMSIZE) == 0);
 }
 
 Test(strings, ft_strcpy)
@@ -236,31 +236,31 @@ Test(strings, ft_strcpy)
 	char *src;
 
 	src = "\200";
-	test_ft_strcpy(src, dst1, dst2);
+	cr_assert(test_ft_strcpy(src, dst1, dst2) == true, "Your ft_strcpy doesnt work -> strcpy{%s}, ft_strcpy{%s}", dst1, dst2);
 
 	src = "\255";
-	test_ft_strcpy(src, dst1, dst2);
+	cr_assert(test_ft_strcpy(src, dst1, dst2) == true, "Your ft_strcpy doesnt work -> strcpy{%s}, ft_strcpy{%s}", dst1, dst2);
 
 	src = "\255\0";
-	test_ft_strcpy(src, dst1, dst2);
+	cr_assert(test_ft_strcpy(src, dst1, dst2) == true, "Your ft_strcpy doesnt work -> strcpy{%s}, ft_strcpy{%s}", dst1, dst2);
 
 	src = "";
-	test_ft_strcpy(src, dst1, dst2);
+	cr_assert(test_ft_strcpy(src, dst1, dst2) == true, "Your ft_strcpy doesnt work -> strcpy{%s}, ft_strcpy{%s}", dst1, dst2);
 
 	src = "a";
-	test_ft_strcpy(src, dst1, dst2);
+	cr_assert(test_ft_strcpy(src, dst1, dst2) == true, "Your ft_strcpy doesnt work -> strcpy{%s}, ft_strcpy{%s}", dst1, dst2);
 
 	src = "ab\0ab";
-	test_ft_strcpy(src, dst1, dst2);
+	cr_assert(test_ft_strcpy(src, dst1, dst2) == true, "Your ft_strcpy doesnt work -> strcpy{%s}, ft_strcpy{%s}", dst1, dst2);
 
 	src = "Yallaaaaa";
-	test_ft_strcpy(src, dst1, dst2);
+	cr_assert(test_ft_strcpy(src, dst1, dst2) == true, "Your ft_strcpy doesnt work -> strcpy{%s}, ft_strcpy{%s}", dst1, dst2);
 
 #if RANDOMIZED_TESTS
 	for (int i = -ITERATIONS; i < ITERATIONS; i++)
 	{
 		src = CRIT_randstring(MEMSIZE);
-		test_ft_strcpy(src, dst1, dst2);
+	cr_assert(test_ft_strcpy(src, dst1, dst2) == true, "Your ft_strcpy doesnt work -> strcpy{%s}, ft_strcpy{%s}", dst1, dst2);
 		free(src);
 	}
 #endif
