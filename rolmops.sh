@@ -4,10 +4,10 @@
 #                                                         ::::::::             #
 #    rolmops.sh                                         :+:    :+:             #
 #                                                      +:+                     #
-#    By: sverschu </var/mail/sverschu>                +#+                      #
+#    By: sverschu <sverschu@student.codam.n>          +#+                      #
 #                                                    +#+                       #
-#    Created: 2019/11/23 06:56:05 by sverschu      #+#    #+#                  #
-#    Updated: 2019/11/23 09:14:16 by sverschu      ########   odam.nl          #
+#    Created: 2020/06/29 21:04:02 by sverschu      #+#    #+#                  #
+#    Updated: 2020/06/29 21:04:02 by sverschu      ########   odam.nl          #
 #                                                                              #
 # **************************************************************************** #
 
@@ -92,6 +92,7 @@ _criterion()
 		echo "export LIBRARY_PATH=\"/Users/$USER/.brew/lib:\$LIBRARY_PATH\"" | tee -a /Users/$USER/.zshrc
 		export C_INCLUDE_PATH="/Users/$USER/.brew/include:\$C_INCLUDE_PATH"
 		export LIBRARY_PATH="/Users/$USER/.brew/lib:\$LIBRARY_PATH"
+		source /Users/$USER/.zshrc
 	else
 		logp info 'ZSH environment variables C_INCLUDE_PATH and LIBRARY_PATH are already present and set to include .brew libs & includes.'
 	fi
@@ -154,12 +155,6 @@ cat<<EOF
 Options:
         -m -> size used in call to malloc [0..MAX] -> default : 1000
         -i -> count of iterations in all test-loops [0..MAX]-> default : 5000
-        -p -> parts that are active during test [1/2/12] -> default : 12
-        -l -> load default test level [1/2/3] 
-              -l 1 : small memsize, low iteration count, no randomized tests
-              -l 2 : medium memsize, medium iteration count, randomized tests
-              -l 3 : fat memsize, fat iteration count, randomized tests, strict checks
-               (this will compile and run immediately, all other flags are ignored)
         -s -> for segfault hunting: run code with AddressSanitizer (-fsanitize=address)
                open your libasm Makefile add -fsanitize=address to your compile flags
                like this: CC_FLAGS = -Werror -Wextra -Wall -fsanitize=address
@@ -210,22 +205,6 @@ _handle_input()
 				i)
 					((${OPTARG} > 0)) || _usage
 					EXT_FLAGS="$EXT_FLAGS -D ITERATIONS=${OPTARG}"
-					;;
-				p)
-					((${OPTARG} == 1)) && EXT_FLAGS="$EXT_FLAGS -D PART1=1 -D PART2=0"
-					((${OPTARG} == 2)) && EXT_FLAGS="$EXT_FLAGS -D PART1=0 -D PART2=1"
-					((${OPTARG} == 12)) && EXT_FLAGS="$EXT_FLAGS -D PART1=1 -D PART2=1"
-					((${OPTARG} == 1)) || ((${OPTARG} == 2)) || ((${OPTARG} == 12)) || _usage
-					;;
-				l)
-					((${OPTARG} == 1)) && EXT_FLAGS="-D RANDOMIZED_TESTS=0 -D MEMSIZE=200 -D ITERATIONS=100"
-					((${OPTARG} == 2)) && EXT_FLAGS="-D MEMSIZE=500 -D ITERATIONS=1000 -D RANDOMIZED_TESTS=1"
-					((${OPTARG} == 3)) && EXT_FLAGS="-D STRLCAT_STRICT_SIMILARITY=1 -D MEMSIZE=5000 -D ITERATIONS=10000 -D RANDOMIZED_TESTS=1"
-					((${OPTARG} == 1)) || ((${OPTARG} == 2)) || ((${OPTARG} == 3)) || _usage
-
-					# run tests immediately
-					_compile
-					_run
 					;;
 				s)
 					EXT_FLAGS="$EXT_FLAGS -fsanitize=address -D FSANITIZE_ADDRESS=1"

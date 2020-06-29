@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   criterion_libasm.c                                  :+:    :+:            */
+/*   criterion_libasm.c                                 :+:    :+:            */
 /*                                                     +:+                    */
-/*   By: sverschu </var/mail/sverschu>                +#+                     */
+/*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2019/11/24 13:21:37 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/06/22 18:41:50 by sverschu      ########   odam.nl         */
+/*   Created: 2020/06/29 21:03:48 by sverschu      #+#    #+#                 */
+/*   Updated: 2020/06/29 21:17:19 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,19 +113,24 @@ Test(strings, ft_strlen)
 	char *str;
 
 	str = "Hello";
-    cr_expect_eq(ft_strlen(str), strlen(str), "Your ft_strlen doesnt work for |%s|",str);
+    cr_expect_eq(ft_strlen(str), strlen(str), "Your ft_strlen doesnt work for |%s| -> strlen: %zu, ft_strlen: %zu", str, strlen(str), ft_strlen(str));
 	str = "He\0llo";
-    cr_expect_eq(ft_strlen(str), strlen(str), "Your ft_strlen doesnt work for |%s|",str);
+    cr_expect_eq(ft_strlen(str), strlen(str), "Your ft_strlen doesnt work for |%s| -> strlen: %zu, ft_strlen: %zu", str, strlen(str), ft_strlen(str));
 	str = "Heøllo";
-    cr_expect_eq(ft_strlen(str), strlen(str), "Your ft_strlen doesnt work for |%s|",str);
+    cr_expect_eq(ft_strlen(str), strlen(str), "Your ft_strlen doesnt work for |%s| -> strlen: %zu, ft_strlen: %zu", str, strlen(str), ft_strlen(str));
+	str = "He\255llo";
+    cr_expect_eq(ft_strlen(str), strlen(str), "Your ft_strlen doesnt work for |%s| -> strlen: %zu, ft_strlen: %zu", str, strlen(str), ft_strlen(str));
 	str = "";
-    cr_expect_eq(ft_strlen(str), strlen(str), "Your ft_strlen doesnt work for |%s|",str);
+    cr_expect_eq(ft_strlen(str), strlen(str), "Your ft_strlen doesnt work for |%s| -> strlen: %zu, ft_strlen: %zu", str, strlen(str), ft_strlen(str));
+	str = "\255";
+    cr_expect_eq(ft_strlen(str), strlen(str), "Your ft_strlen doesnt work for |%s| -> strlen: %zu, ft_strlen: %zu", str, strlen(str), ft_strlen(str));
 
+	srand(time(NULL));
 #if RANDOMIZED_TESTS
 	for (long i = -ITERATIONS; i < ITERATIONS; i++)
 	{
 		str = CRIT_randstring(ITERATIONS);
-    	cr_expect_eq(ft_strlen(str), strlen(str), "Your ft_strlen doesnt work for <RANDOM STRING>");
+    	cr_assert_eq(ft_strlen(str), strlen(str), "Your ft_strlen doesnt work for <RANDOM STRING> -> strlen: %zu, ft_strlen: %zu", strlen(str), ft_strlen(str));
 		free(str);
 	}
 #endif
@@ -143,12 +148,12 @@ Test(strings, ft_strcmp_segv2, .signal = SIGSEGV)
 }
 #endif
 
-void test_ft_strcmp(char *str1, char *str2)
+bool  test_ft_strcmp(char *str1, char *str2)
 {
 #if STRNCMP_SIGN
-	cr_expect(((ft_strcmp(str1, str2) > 0) && (strcmp(str1, str2) > 0)) || ((ft_strcmp(str1, str2) < 0) && (strcmp(str1, str2) < 0)) || ((ft_strcmp(str1, str2) == 0) && (strcmp(str1, str2) == 0)) == 1, "Your ft_strcmp doesnt work for s1{%s} s2{%s}", str1, str2);
+	return (((ft_strcmp(str1, str2) > 0) && (strcmp(str1, str2) > 0)) || ((ft_strcmp(str1, str2) < 0) && (strcmp(str1, str2) < 0)) || ((ft_strcmp(str1, str2) == 0) && (strcmp(str1, str2) == 0)));
 #else
-	cr_expect_eq(ft_strcmp(str1, str2, n), strcmp(str1, str2),"Your ft_strcmp doesnt work for s1{%s} s2{%s}", str1, str2);
+	return(ft_strcmp(str1, str2) == strcmp(str1, str2));
 #endif
 }
 
@@ -159,50 +164,59 @@ Test(strings, ft_strcmp)
 
 	str1 = "a";
 	str2 = "b";
-	test_ft_strcmp(str1, str2);
+	cr_expect(test_ft_strcmp(str1, str2), "Your ft_strcmp doesnt work for s1{%s} s2{%s} -> ft_strcmp : %i, strcmp : %i", str1, str2, ft_strcmp(str1, str2), strcmp(str1, str2));
 
 	str1 = "a\0";
 	str2 = "b\200";
-	test_ft_strcmp(str1, str2);
+	cr_expect(test_ft_strcmp(str1, str2), "Your ft_strcmp doesnt work for s1{%s} s2{%s} -> ft_strcmp : %i, strcmp : %i", str1, str2, ft_strcmp(str1, str2), strcmp(str1, str2));
+
+	str1 = "b\255";
+	str2 = "a\0";
+	cr_expect(test_ft_strcmp(str1, str2), "Your ft_strcmp doesnt work for s1{%s} s2{%s} -> ft_strcmp : %i, strcmp : %i", str1, str2, ft_strcmp(str1, str2), strcmp(str1, str2));
+
+	str1 = "a\0";
+	str2 = "b\255";
+	cr_expect(test_ft_strcmp(str1, str2), "Your ft_strcmp doesnt work for s1{%s} s2{%s} -> ft_strcmp : %i, strcmp : %i", str1, str2, ft_strcmp(str1, str2), strcmp(str1, str2));
 
 	str1 = "aa";
 	str2 = "b";
-	test_ft_strcmp(str1, str2);
+	cr_expect(test_ft_strcmp(str1, str2), "Your ft_strcmp doesnt work for s1{%s} s2{%s} -> ft_strcmp : %i, strcmp : %i", str1, str2, ft_strcmp(str1, str2), strcmp(str1, str2));
 	
 	str1 = "a";
 	str2 = "bb";
-	test_ft_strcmp(str1, str2);
+	cr_expect(test_ft_strcmp(str1, str2), "Your ft_strcmp doesnt work for s1{%s} s2{%s} -> ft_strcmp : %i, strcmp : %i", str1, str2, ft_strcmp(str1, str2), strcmp(str1, str2));
 
 	str1 = "aYallaaaaa";
 	str2 = "bYallaaaaa";
-	test_ft_strcmp(str1, str2);
+	cr_expect(test_ft_strcmp(str1, str2), "Your ft_strcmp doesnt work for s1{%s} s2{%s} -> ft_strcmp : %i, strcmp : %i", str1, str2, ft_strcmp(str1, str2), strcmp(str1, str2));
 
 	str1 = "Yallbaaaa";
 	str2 = "Yallaaaaa";
-	test_ft_strcmp(str1, str2);
+	cr_expect(test_ft_strcmp(str1, str2), "Your ft_strcmp doesnt work for s1{%s} s2{%s} -> ft_strcmp : %i, strcmp : %i", str1, str2, ft_strcmp(str1, str2), strcmp(str1, str2));
 
 	str1 = "";
 	str2 = "Yallaaaaa";
-	test_ft_strcmp(str1, str2);
+	cr_expect(test_ft_strcmp(str1, str2), "Your ft_strcmp doesnt work for s1{%s} s2{%s} -> ft_strcmp : %i, strcmp : %i", str1, str2, ft_strcmp(str1, str2), strcmp(str1, str2));
 
 	str1 = "Yallaaaaa";
 	str2 = "";
-	test_ft_strcmp(str1, str2);
+	cr_expect(test_ft_strcmp(str1, str2), "Your ft_strcmp doesnt work for s1{%s} s2{%s} -> ft_strcmp : %i, strcmp : %i", str1, str2, ft_strcmp(str1, str2), strcmp(str1, str2));
 
 	str1 = "";
 	str2 = "";
-	test_ft_strcmp(str1, str2);
+	cr_expect(test_ft_strcmp(str1, str2), "Your ft_strcmp doesnt work for s1{%s} s2{%s} -> ft_strcmp : %i, strcmp : %i", str1, str2, ft_strcmp(str1, str2), strcmp(str1, str2));
 
 	str1 = "a";
 	str2 = "b";
-	test_ft_strcmp(str1, str2);
+	cr_expect(test_ft_strcmp(str1, str2), "Your ft_strcmp doesnt work for s1{%s} s2{%s} -> ft_strcmp : %i, strcmp : %i", str1, str2, ft_strcmp(str1, str2), strcmp(str1, str2));
 
+	srand(time(NULL));
 #if RANDOMIZED_TESTS
 	for (long i = -ITERATIONS; i < ITERATIONS; i++)
 	{
 		str1 = CRIT_randstring(ITERATIONS);
 		str2 = CRIT_randstring(ITERATIONS);
-		test_ft_strcmp(str1, str2);
+		cr_assert(test_ft_strcmp(str1, str2), "Your ft_strcmp doesnt work for s1<RANDOM STRING> s2<RANDOM STRING> -> ft_strcmp : %i, strcmp : %i", ft_strcmp(str1, str2), strcmp(str1, str2));
 		free(str1);
 		free(str2);
 	}
@@ -236,31 +250,32 @@ Test(strings, ft_strcpy)
 	char *src;
 
 	src = "\200";
-	cr_assert(test_ft_strcpy(src, dst1, dst2) == true, "Your ft_strcpy doesnt work -> strcpy{%s}, ft_strcpy{%s}", dst1, dst2);
+	cr_expect(test_ft_strcpy(src, dst1, dst2) == true, "Your ft_strcpy doesnt work -> strcpy{%s}, ft_strcpy{%s}", dst1, dst2);
 
 	src = "\255";
-	cr_assert(test_ft_strcpy(src, dst1, dst2) == true, "Your ft_strcpy doesnt work -> strcpy{%s}, ft_strcpy{%s}", dst1, dst2);
+	cr_expect(test_ft_strcpy(src, dst1, dst2) == true, "Your ft_strcpy doesnt work -> strcpy{%s}, ft_strcpy{%s}", dst1, dst2);
 
 	src = "\255\0";
-	cr_assert(test_ft_strcpy(src, dst1, dst2) == true, "Your ft_strcpy doesnt work -> strcpy{%s}, ft_strcpy{%s}", dst1, dst2);
+	cr_expect(test_ft_strcpy(src, dst1, dst2) == true, "Your ft_strcpy doesnt work -> strcpy{%s}, ft_strcpy{%s}", dst1, dst2);
 
 	src = "";
-	cr_assert(test_ft_strcpy(src, dst1, dst2) == true, "Your ft_strcpy doesnt work -> strcpy{%s}, ft_strcpy{%s}", dst1, dst2);
+	cr_expect(test_ft_strcpy(src, dst1, dst2) == true, "Your ft_strcpy doesnt work -> strcpy{%s}, ft_strcpy{%s}", dst1, dst2);
 
 	src = "a";
-	cr_assert(test_ft_strcpy(src, dst1, dst2) == true, "Your ft_strcpy doesnt work -> strcpy{%s}, ft_strcpy{%s}", dst1, dst2);
+	cr_expect(test_ft_strcpy(src, dst1, dst2) == true, "Your ft_strcpy doesnt work -> strcpy{%s}, ft_strcpy{%s}", dst1, dst2);
 
 	src = "ab\0ab";
-	cr_assert(test_ft_strcpy(src, dst1, dst2) == true, "Your ft_strcpy doesnt work -> strcpy{%s}, ft_strcpy{%s}", dst1, dst2);
+	cr_expect(test_ft_strcpy(src, dst1, dst2) == true, "Your ft_strcpy doesnt work -> strcpy{%s}, ft_strcpy{%s}", dst1, dst2);
 
 	src = "Yallaaaaa";
-	cr_assert(test_ft_strcpy(src, dst1, dst2) == true, "Your ft_strcpy doesnt work -> strcpy{%s}, ft_strcpy{%s}", dst1, dst2);
+	cr_expect(test_ft_strcpy(src, dst1, dst2) == true, "Your ft_strcpy doesnt work -> strcpy{%s}, ft_strcpy{%s}", dst1, dst2);
 
+	srand(time(NULL));
 #if RANDOMIZED_TESTS
 	for (int i = -ITERATIONS; i < ITERATIONS; i++)
 	{
 		src = CRIT_randstring(MEMSIZE);
-	cr_assert(test_ft_strcpy(src, dst1, dst2) == true, "Your ft_strcpy doesnt work -> strcpy{%s}, ft_strcpy{%s}", dst1, dst2);
+		cr_assert(test_ft_strcpy(src, dst1, dst2) == true, "Your ft_strcpy doesnt work -> strcpy<RANDOM STRING>, ft_strcpy<RANDOM STRING>");
 		free(src);
 	}
 #endif
@@ -327,13 +342,14 @@ Test(strings, ft_strdup)
 	free (dst1);
 	free (dst2);
 
+	srand(time(NULL));
 #if RANDOMIZED_TESTS
 	for (int i = -ITERATIONS; i < ITERATIONS; i++)
 	{
 		src = CRIT_randstring(200);
 		dst1 = ft_strdup(src);
 		dst2 = strdup(src);
-		cr_expect(memcmp(dst1, dst2, strlen(src) + 1) == 0,"5: Your ft_strdup doesnt work -> strdup <RANDOM STRING>");
+		cr_assert(memcmp(dst1, dst2, strlen(src) + 1) == 0,"5: Your ft_strdup doesnt work -> strdup <RANDOM STRING>");
 		free (src);
 		free (dst1);
 		free (dst2);
