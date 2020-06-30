@@ -145,7 +145,7 @@ _smokebreak()
 	logp info "hit ctrl+c to kill the test"
 	logp info_nnl "Smoking in.." && printf "3 " && sleep 1 && printf "2 " && sleep 1 && printf "1\n" && sleep 1 && logp info_nnl "0 : "
 	i=0; while (zsh -c "$EXEC"); do i=$((i+1)); logp info_nnl "$i : "; if [ $i -gt $SMOKEBREAK_MAX ]; then break; fi; sleep 0.1; done
-	if [ $? -eq 0 ]; then logp info "Smokebreak was succesfull :)"; else logp warning "Have another smoke :("; fi
+	if [ $? -eq 0 ]; then logp info "Smokebreak was succesful :)"; else logp warning "Have another smoke :("; fi
 }
 
 _usage()
@@ -156,8 +156,6 @@ Options:
         -m -> size used in call to malloc [0..MAX] -> default : 1000
         -i -> count of iterations in all test-loops [0..MAX]-> default : 5000
         -s -> for segfault hunting: run code with AddressSanitizer (-fsanitize=address)
-               open your libasm Makefile add -fsanitize=address to your compile flags
-               like this: CC_FLAGS = -Werror -Wextra -Wall -fsanitize=address
         -r -> use randomized tests [1/0]
               -------------------------------------------------------------------------------
 Run commands:

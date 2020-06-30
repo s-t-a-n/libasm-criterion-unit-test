@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/06/29 21:03:48 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/06/30 12:49:26 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/06/30 18:56:25 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,9 @@
 #include <string.h>
 #include <limits.h>
 #include <time.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <unistd.h>
 
 #include <criterion/criterion.h>
 #include <criterion/logging.h>
@@ -357,34 +360,193 @@ Test(strings, ft_strdup)
 #endif
 }
 
-bool	test_ft_read(int *fd, char *buf, size_t *n, ssize_t *rt, char *str)
+bool	test_ft_read(int *fd, char *buf, size_t *n, ssize_t *rt, int *_errno)
 {
 	const char	*filename = "/tmp/ft_read_test.file";
-	char		op[1024];
-	char		shad_buf[1024];
+	const char	*str = "Fakkaa wereld!";
+	char		op[128];
+	char		shad_buf[128];
 	ssize_t		shad_rt;
+
+	memset(buf, 'A', 128);
+	memset(shad_buf, 'A', 128);
 	
-	snprintf(op, 1024, "echo %s > %s", str, filename);
+	snprintf(op, 128, "echo %s > %s", str, filename);
 	system(op);
+
+	errno = 0;
+	*fd = open(filename, O_RDONLY);
+	cr_assert(*fd > -1, "Couldn't open test file |%s|", filename);
+	*rt = ft_read(*fd, buf, *n);
+	if (*rt < 0)	*_errno = errno;
+	else			cr_expect(errno == 0, "Your ft_read returns 0 or higher but you do set errno\n");
+	cr_assert(close(*fd) > -1, "Couldn't close test file |%s|", filename);
 
 	*fd = open(filename, O_RDONLY);
 	cr_assert(*fd > -1, "Couldn't open test file |%s|", filename);
-
-	*rt = ft_read(*fd, buf, *n);
 	shad_rt = read(*fd, shad_buf, *n);
+	cr_expect(shad_rt == *rt, "Read bytes mismatch : notre: %zi, votre: %zi\n", shad_rt, *rt);
+	
+	if (shad_rt < 0)	cr_expect(*_errno == errno, "Errno mismatch : notre: %i, votre: %i\n", errno, *_errno);
+	cr_assert(close(*fd) > -1, "Couldn't close test file |%s|", filename);
 
-	snprintf(op, 1024, "rm -f %s", filename);
+	snprintf(op, 128, "rm -f %s", filename);
 	system(op);
+	return (memcmp(buf, shad_buf, 128) == 0);
+}
+
+bool	test_ft_read_bad_fd(int *fd, char *buf, size_t *n, ssize_t *rt, int *_errno)
+{ 
+	const char	*filename = "/tmp/ft_read_test.file";
+	const char	*str = "Fakkaa wereld!";
+	char		op[128];
+	char		shad_buf[128];
+	ssize_t		shad_rt;
+
+	memset(buf, 'A', 128);
+	memset(shad_buf, 'A', 128);
+	
+	snprintf(op, 128, "echo %s > %s", str, filename);
+	system(op);
+
+	*fd = -1;
+	errno = 0;
+	*rt = ft_read(*fd, buf, *n);
+	if (*rt < 0)	*_errno = errno;
+	else			cr_expect(errno == 0, "Your ft_read returns 0 or higher but you do set errno\n");
+
+	shad_rt = read(*fd, shad_buf, *n);
+	cr_expect(shad_rt == *rt, "Read bytes mismatch : notre: %zi, votre: %zi\n", shad_rt, *rt);
+	if (*rt < 0)	cr_expect(*_errno == errno, "Errno mismatch : notre: %i, votre: %i\n", errno, *_errno);
+
+	snprintf(op, 128, "rm -f %s", filename);
+	system(op);
+	return (memcmp(buf, shad_buf, 128) == 0);
 }
 
 Test(syscalls, ft_read)
 {
-	char	buf[1024];
+	char	buf[128];
 	int		fd;
+	int		_errno;
 	size_t	n;
 	ssize_t	rt;
-	char	*str;
+	
+	n = 5;
+	cr_expect(test_ft_read(&fd, buf, &n, &rt, &_errno), "Your ft_read doesn't work -> ft_read: returns: %zi, errno : %i, buf : |%s|, n : %zu, fd : %i", rt, _errno, buf, n, fd);
+	cr_expect(test_ft_read_bad_fd(&fd, buf, &n, &rt, &_errno), "Your ft_read doesn't work -> ft_read: returns: %zi, errno : %i, buf : |%s|, n : %zu, fd : %i", rt, _errno, buf, n, fd);
+	n = 1;
+	cr_expect(test_ft_read(&fd, buf, &n, &rt, &_errno), "Your ft_read doesn't work -> ft_read: returns: %zi, errno : %i, buf : |%s|, n : %zu, fd : %i", rt, _errno, buf, n, fd);
+	cr_expect(test_ft_read_bad_fd(&fd, buf, &n, &rt, &_errno), "Your ft_read doesn't work -> ft_read: returns: %zi, errno : %i, buf : |%s|, n : %zu, fd : %i", rt, _errno, buf, n, fd);
+	n = 0;
+	cr_expect(test_ft_read(&fd, buf, &n, &rt, &_errno), "Your ft_read doesn't work -> ft_read: returns: %zi, errno : %i, buf : |%s|, n : %zu, fd : %i", rt, _errno, buf, n, fd);
+	cr_expect(test_ft_read_bad_fd(&fd, buf, &n, &rt, &_errno), "Your ft_read doesn't work -> ft_read: returns: %zi, errno : %i, buf : |%s|, n : %zu, fd : %i", rt, _errno, buf, n, fd);
 
-	str = "hello";
-	cr_expect(test_ft_read(&fd, buf, &n, &rt, str), "Your ft_read doesn't work -> ft_read: returns: %zi, errno : %i, buf : |%s|, n : %zu, fd : %i, was called with str : |%s|", rt, errno, buf, n, fd, str);
+	n = -1;
+	cr_expect(test_ft_read(&fd, buf, &n, &rt, &_errno), "Your ft_read doesn't work -> ft_read: returns: %zi, errno : %i, buf : |%s|, n : %zu, fd : %i", rt, _errno, buf, n, fd);
+	cr_expect(test_ft_read_bad_fd(&fd, buf, &n, &rt, &_errno), "Your ft_read doesn't work -> ft_read: returns: %zi, errno : %i, buf : |%s|, n : %zu, fd : %i", rt, _errno, buf, n, fd);
+
+	// oh yes why not
+	n = INT_MIN;
+	cr_expect(test_ft_read(&fd, buf, &n, &rt, &_errno), "Your ft_read doesn't work -> ft_read: returns: %zi, errno : %i, buf : |%s|, n : %zu, fd : %i", rt, _errno, buf, n, fd);
+	cr_expect(test_ft_read_bad_fd(&fd, buf, &n, &rt, &_errno), "Your ft_read doesn't work -> ft_read: returns: %zi, errno : %i, buf : |%s|, n : %zu, fd : %i", rt, _errno, buf, n, fd);
+	n = INT_MAX;
+	cr_expect(test_ft_read(&fd, buf, &n, &rt, &_errno), "Your ft_read doesn't work -> ft_read: returns: %zi, errno : %i, buf : |%s|, n : %zu, fd : %i", rt, _errno, buf, n, fd);
+	cr_expect(test_ft_read_bad_fd(&fd, buf, &n, &rt, &_errno), "Your ft_read doesn't work -> ft_read: returns: %zi, errno : %i, buf : |%s|, n : %zu, fd : %i", rt, _errno, buf, n, fd);
 }
+
+bool	test_ft_write(int *fd, char *buf, size_t *n, ssize_t *rt, int *_errno)
+{
+	const char	*filename = "/tmp/ft_write_test.file";
+	const char	*str = "Fakkaa wereld!";
+	char		op[128];
+	char		shad_buf[128];
+	ssize_t		shad_rt;
+
+	memset(buf, 'A', 128);
+	memset(shad_buf, 'A', 128);
+
+	errno = 0;
+
+	*fd = open(filename, O_RDWR|O_TRUNC|O_CREAT);
+	cr_assert(*fd > -1, "Couldn't open test file |%s|", filename);
+	*rt = ft_write(*fd, str, *n);
+	if (*rt < 0)	*_errno = errno;
+	else			cr_expect(errno == 0, "Your ft_write returns 0 or higher but you do set errno\n");
+	cr_assert(close(*fd) > -1, "Couldn't close test file |%s|", filename);
+
+	*fd = open(filename, O_RDONLY);
+	cr_assert(*fd > -1, "Couldn't open test file |%s|", filename);
+	cr_expect(read(*fd, buf, *n) == (ssize_t)*n, "Your ft_write has not written (enough)!");
+	cr_expect(read(*fd, buf, *n) <= 0, "Your ft_write has written too much");
+	cr_assert(close(*fd) > -1, "Couldn't close test file |%s|", filename);
+
+	*fd = open(filename, O_RDWR|O_TRUNC|O_CREAT);
+	cr_assert(*fd > -1, "Couldn't open test file |%s|", filename);
+	shad_rt = write(*fd, str, *n);
+	if (shad_rt < 0)	cr_expect(*_errno == errno, "Errno mismatch : notre: %i, votre: %i\n", errno, *_errno);
+	cr_assert(close(*fd) > -1, "Couldn't close test file |%s|", filename);
+
+	*fd = open(filename, O_RDONLY);
+	cr_assert(*fd > -1, "Couldn't open test file |%s|", filename);
+	cr_assert(read(*fd, shad_buf, *n) == (ssize_t)*n, "Couldnt read from file!");
+	cr_assert(read(*fd, shad_buf, *n) <= 0, "Couldnt read from file!");
+	cr_assert(close(*fd) > -1, "Couldn't close test file |%s|", filename);
+
+	snprintf(op, 128, "rm -f %s", filename);
+	system(op);
+	return (memcmp(buf, shad_buf, 128) == 0);
+}
+
+bool	test_ft_write_badfd(int *fd, char *buf, size_t *n, ssize_t *rt, int *_errno)
+{
+	const char	*filename = "/tmp/ft_write_test.file";
+	const char	*str = "Fakkaa wereld!";
+	char		op[128];
+	char		shad_buf[128];
+	ssize_t		shad_rt;
+
+	memset(buf, 'A', 128);
+	memset(shad_buf, 'A', 128);
+
+	errno = 0;
+	*fd = -1;
+
+	*rt = ft_write(*fd, str, *n);
+	if (*rt < 0)	*_errno = errno;
+	else			cr_expect(errno == 0, "Your ft_write returns 0 or higher but you do set errno\n");
+
+	shad_rt = write(*fd, str, *n);
+	if (shad_rt < 0)	cr_expect(*_errno == errno, "Errno mismatch : notre: %i, votre: %i\n", errno, *_errno);
+
+	snprintf(op, 128, "rm -f %s", filename);
+	system(op);
+	return (memcmp(buf, shad_buf, 128) == 0);
+}
+
+#if !FSANITIZE_ADDRESS
+Test(syscalls, ft_write)
+{
+	char	buf[128];
+	int		fd;
+	int		_errno;
+	size_t	n;
+	ssize_t	rt;
+	
+	n = 5;
+	cr_expect(test_ft_write(&fd, buf, &n, &rt, &_errno), "Your ft_write doesn't work -> ft_read: returns: %zi, errno : %i, buf : |%s|, n : %zu, fd : %i", rt, _errno, buf, n, fd);
+	cr_expect(test_ft_write_badfd(&fd, buf, &n, &rt, &_errno), "Your ft_write doesn't work -> ft_read: returns: %zi, errno : %i, buf : |%s|, n : %zu, fd : %i", rt, _errno, buf, n, fd);
+
+	n = 1;
+	cr_expect(test_ft_write(&fd, buf, &n, &rt, &_errno), "Your ft_write doesn't work -> ft_read: returns: %zi, errno : %i, buf : |%s|, n : %zu, fd : %i", rt, _errno, buf, n, fd);
+	cr_expect(test_ft_write_badfd(&fd, buf, &n, &rt, &_errno), "Your ft_write doesn't work -> ft_read: returns: %zi, errno : %i, buf : |%s|, n : %zu, fd : %i", rt, _errno, buf, n, fd);
+
+	n = 0;
+	cr_expect(test_ft_write(&fd, buf, &n, &rt, &_errno), "Your ft_write doesn't work -> ft_read: returns: %zi, errno : %i, buf : |%s|, n : %zu, fd : %i", rt, _errno, buf, n, fd);
+	cr_expect(test_ft_write_badfd(&fd, buf, &n, &rt, &_errno), "Your ft_write doesn't work -> ft_read: returns: %zi, errno : %i, buf : |%s|, n : %zu, fd : %i", rt, _errno, buf, n, fd);
+
+	n = -1;
+	cr_expect(test_ft_write(&fd, buf, &n, &rt, &_errno), "Your ft_write doesn't work -> ft_read: returns: %zi, errno : %i, buf : |%s|, n : %zu, fd : %i", rt, _errno, buf, n, fd);
+	cr_expect(test_ft_write_badfd(&fd, buf, &n, &rt, &_errno), "Your ft_write doesn't work -> ft_read: returns: %zi, errno : %i, buf : |%s|, n : %zu, fd : %i", rt, _errno, buf, n, fd);
+}
+#endif
