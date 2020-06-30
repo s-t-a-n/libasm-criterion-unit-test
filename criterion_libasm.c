@@ -6,7 +6,7 @@
 /*   By: sverschu <sverschu@student.codam.n>          +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2020/06/29 21:03:48 by sverschu      #+#    #+#                 */
-/*   Updated: 2020/06/29 21:17:19 by sverschu      ########   odam.nl         */
+/*   Updated: 2020/06/30 12:49:26 by sverschu      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -299,14 +299,14 @@ Test(strings, ft_strdup)
 	src = "\255";
 	dst1 = ft_strdup(src);
 	dst2 = strdup(src);
-	cr_expect(memcmp(dst1, dst2, strlen(src) + 1) == 0,"1: Your ft_strdup doesnt work -> strdup{%s}", src);
+	cr_expect(memcmp(dst1, dst2, strlen(src) + 1) == 0,"Your ft_strdup doesnt work -> strdup{%s}", src);
 	free (dst1);
 	free (dst2);
 
 	src = "";
 	dst1 = ft_strdup(src);
 	dst2 = strdup(src);
-	cr_expect(memcmp(dst1, dst2, strlen(src) + 1) == 0,"1: Your ft_strdup doesnt work -> strdup{%s}", src);
+	cr_expect(memcmp(dst1, dst2, strlen(src) + 1) == 0,"Your ft_strdup doesnt work -> strdup{%s}", src);
 	// mutability test
 	dst1[0] = 'a';
 	free (dst1);
@@ -315,7 +315,7 @@ Test(strings, ft_strdup)
 	src = "Yallaaaaaaaaaa";
 	dst1 = ft_strdup(src);
 	dst2 = strdup(src);
-	cr_expect(memcmp(dst1, dst2, strlen(src) + 1) == 0,"2: Your ft_strdup doesnt work -> strdup{%s}", src);
+	cr_expect(memcmp(dst1, dst2, strlen(src) + 1) == 0,"Your ft_strdup doesnt work -> strdup{%s}", src);
 	// mutability test
 	dst1[0] = 'a';
 	free (dst1);
@@ -324,21 +324,21 @@ Test(strings, ft_strdup)
 	src = "Yallaaa\0aaaaaaa";
 	dst1 = ft_strdup(src);
 	dst2 = strdup(src);
-	cr_expect(memcmp(dst1, dst2, strlen(src) + 1) == 0,"3: Your ft_strdup doesnt work -> strdup{%s}", src);
+	cr_expect(memcmp(dst1, dst2, strlen(src) + 1) == 0,"Your ft_strdup doesnt work -> strdup{%s}", src);
 	free (dst1);
 	free (dst2);
 
 	src = "";
 	dst1 = ft_strdup(src);
 	dst2 = strdup(src);
-	cr_expect(memcmp(dst1, dst2, strlen(src) + 1) == 0,"4: Your ft_strdup doesnt work -> strdup{%s}", src);
+	cr_expect(memcmp(dst1, dst2, strlen(src) + 1) == 0,"Your ft_strdup doesnt work -> strdup{%s}", src);
 	free (dst1);
 	free (dst2);
 
 	src = "";
 	dst1 = ft_strdup(src);
 	dst2 = strdup(src);
-	cr_expect(memcmp(dst1, dst2, strlen(src) + 1) == 0,"5: Your ft_strdup doesnt work -> strdup{%s}", src);
+	cr_expect(memcmp(dst1, dst2, strlen(src) + 1) == 0,"Your ft_strdup doesnt work -> strdup{%s}", src);
 	free (dst1);
 	free (dst2);
 
@@ -349,10 +349,42 @@ Test(strings, ft_strdup)
 		src = CRIT_randstring(200);
 		dst1 = ft_strdup(src);
 		dst2 = strdup(src);
-		cr_assert(memcmp(dst1, dst2, strlen(src) + 1) == 0,"5: Your ft_strdup doesnt work -> strdup <RANDOM STRING>");
+		cr_assert(memcmp(dst1, dst2, strlen(src) + 1) == 0,"Your ft_strdup doesnt work -> strdup <RANDOM STRING>");
 		free (src);
 		free (dst1);
 		free (dst2);
 	}
 #endif
-} 
+}
+
+bool	test_ft_read(int *fd, char *buf, size_t *n, ssize_t *rt, char *str)
+{
+	const char	*filename = "/tmp/ft_read_test.file";
+	char		op[1024];
+	char		shad_buf[1024];
+	ssize_t		shad_rt;
+	
+	snprintf(op, 1024, "echo %s > %s", str, filename);
+	system(op);
+
+	*fd = open(filename, O_RDONLY);
+	cr_assert(*fd > -1, "Couldn't open test file |%s|", filename);
+
+	*rt = ft_read(*fd, buf, *n);
+	shad_rt = read(*fd, shad_buf, *n);
+
+	snprintf(op, 1024, "rm -f %s", filename);
+	system(op);
+}
+
+Test(syscalls, ft_read)
+{
+	char	buf[1024];
+	int		fd;
+	size_t	n;
+	ssize_t	rt;
+	char	*str;
+
+	str = "hello";
+	cr_expect(test_ft_read(&fd, buf, &n, &rt, str), "Your ft_read doesn't work -> ft_read: returns: %zi, errno : %i, buf : |%s|, n : %zu, fd : %i, was called with str : |%s|", rt, errno, buf, n, fd, str);
+}
