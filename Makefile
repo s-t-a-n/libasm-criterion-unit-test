@@ -6,7 +6,7 @@
 #    By: sverschu </var/mail/sverschu>                +#+                      #
 #                                                    +#+                       #
 #    Created: 2019/10/30 16:10:10 by sverschu      #+#    #+#                  #
-#    Updated: 2020/06/29 21:14:44 by sverschu      ########   odam.nl          #
+#    Updated: 2020/07/04 18:02:46 by sverschu      ########   odam.nl          #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,8 +16,6 @@ SRC = criterion_libasm.c $(LIBASM_FOLDER)/libasm.a
 # compiler and linker
 CC = clang
 CC_FLAGS = -Werror -Wextra -Wall -lcriterion
-
-
 
 # commands
 all: libasm $(NAME)
