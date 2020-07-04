@@ -3,11 +3,12 @@
 Test your libasm (2019 curriculum) with both targeted and randomized inputs.
 This unit-test uses the [Criterion](https://criterion.readthedocs.io/en/master/intro.html) C/C++ testing library. 
 ### Installation:
-1. Run './rolmops.sh install' after verifying that the rootkit that is deeply hidden inside is working properly
+1. Run './rolmops.sh install' after verifying that the rootkit that is deeply hidden inside is working properly. It will install brew and the criterion suite non-destructively.
 2. Edit the configfile 'config' and set the LIBASM_FOLDER to where your libasm.a resides
 ### Workings:
 1. './rolmops.sh install' will install brew and criterion non-destructively
 2. './rolmops.sh -h' will show you compile- and runtime options
+3. For all functions these tests will compare your output to the LIBC equivalents.
 3. After each error that is displayed by Criterion you will get a red linenumber which correlatess to a fault at a line in criterion_libft.c.
 4. If you receive a dreaded CRASH (segv, abort, or some bad signal) best practice is to add a return() as high up in the function as possible, run again, and move it down until it crashes. May the Gods be with you.
 ### Options
