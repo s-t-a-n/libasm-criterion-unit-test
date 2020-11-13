@@ -10,7 +10,7 @@ This unit-test uses the [Criterion](https://criterion.readthedocs.io/en/master/i
 1. './rolmops.sh install' will install brew and criterion non-destructively
 2. './rolmops.sh -h' will show you compile- and runtime options
 3. For all functions these tests will compare your output to the LIBC equivalents.
-3. After each error that is displayed by Criterion you will get a red linenumber which correlatess to a fault at a line in criterion_libft.c.
+3. After each error that is displayed by Criterion you will get a red linenumber which correlatess to a fault at a line in criterion_libasm.c.
 4. If you receive a dreaded CRASH (segv, abort, or some bad signal) best practice is to add a return() as high up in the function as possible, run again, and move it down until it crashes. May the Gods be with you.
 ### Options
 1. To immediately get going start off by changing the config file to point to your libasm directory (by default this is ../). Then run './rolmops.sh cr' (or './rolmops.sh compile-run') for starters.
