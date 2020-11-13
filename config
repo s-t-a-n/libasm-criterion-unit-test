@@ -1,10 +1,10 @@
 #!/bin/sh
 
 # change this to your libasm folder
-export LIBASM_FOLDER=../../
+export LIBASM_FOLDER=../libasm
 
 # ONLY CHANGE IF THE GODS HAVE DECIDED TO USE PROPER FOLDERS
-export LIBASM_INC=$LIBASM_FOLDER/inc
+export LIBASM_INC=$LIBASM_FOLDER
 
 # amount of times smokebreak will try to fuck with your code before giving up
 export SMOKEBREAK_MAX=25

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 # **************************************************************************** #
 #                                                                              #
 #                                                         ::::::::             #
@@ -14,9 +14,11 @@
 # ONLY EDIT THINGS IN ./config OR THE GODS WILL BE DISPLEASED
 source ./config
 
+banner=false
+
 # TRAP
 function finish {
-	logp endsection
+	[ "$banner" = "true" ] && logp endsection
 	exit
 }
 trap finish EXIT
@@ -40,6 +42,7 @@ logp()
 			exit 1
 			;;
 		beginsection)
+			banner=true
 			zsh -c "echo -e \"\e[1m\e[33m*********************************************************************************************\""
 			zsh -c "echo -e \"\e[1m\e[33m|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\e[0m\""
 			;;
@@ -65,6 +68,7 @@ _brew()
 		if [ "$yn" == 'y' ] || [ "$yn" == 'Y' ]
 		then
 			sh $HOMEBREW_SH || return 1
+			source /Users/$USER/.zshrc
 		else
 			logp info 'OK Bye!'
 			return 1
@@ -245,6 +249,17 @@ _handle_input()
 
 }
 
+_env()
+{
+       if [ -n "$ZSH_VERSION" ]; then
+               source /Users/$USER/.zshrc || logp fatal "Couldn't load /Users/$USER/.zshrc"
+       elif [ -n "$BASH_VERSION" ]; then
+               logp fatal "Still running bash ? Try something from the 21st century -> zsh"
+       else
+               logp fatal "What on earth are you running for shell ?"
+       fi
+}
+
 _banner()
 {
 clear
@@ -266,6 +281,7 @@ EOF"
 logp beginsection
 }
 
+_env
 # banners are cool: if you remove the following line the Intergalactic Police will be at your door
 _banner
 _handle_input $@
