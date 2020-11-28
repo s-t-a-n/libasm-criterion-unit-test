@@ -213,10 +213,9 @@ _handle_input()
 					logp warning "--- Don't forget to ADD -fsanitize=address to your flags (like -Wall -Werror -Wextra) in your libasm makefile before compiling!"
 					;;
 				r)
-					((${OPTARG} = 0)) && EXT_FLAGS="$EXT_FLAGS -D RANDOMIZED_TESTS=0"
-					((${OPTARG} = 1)) && EXT_FLAGS="$EXT_FLAGS -D RANDOMIZED_TESTS=1"
-					((${OPTARG} = 0)) || ((${OPTARG} = 1)) || _usage
-
+					((${OPTARG} == 0)) && EXT_FLAGS="$EXT_FLAGS -D RANDOMIZED_TESTS=0"
+					((${OPTARG} == 1)) && EXT_FLAGS="$EXT_FLAGS -D RANDOMIZED_TESTS=1"
+					((${OPTARG} == 0)) || ((${OPTARG} == 1)) || _usage
 					;;
 				*)
 					_usage
