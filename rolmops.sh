@@ -65,7 +65,7 @@ _brew()
 		less $HOMEBREW_SH
 		logp info "Agreed? : y/n"
 		read yn;
-		if [ "$yn" == 'y' ] || [ "$yn" == 'Y' ]
+		if [ "$yn" = 'y' ] || [ "$yn" = 'Y' ]
 		then
 			sh $HOMEBREW_SH || return 1
 			source /Users/$USER/.zshrc
@@ -88,7 +88,7 @@ _criterion()
 		logp info 'Criterion is already present!'
 	fi
 
-	if [ "$(grep C_INCLUDE_PATH /Users/$USER/.zshrc | grep ".brew/include")" == "" ] || [ "$(grep LIBRARY_PATH /Users/$USER/.zshrc | grep ".brew/lib")" == "" ]
+	if [ "$(grep C_INCLUDE_PATH /Users/$USER/.zshrc | grep ".brew/include")" = "" ] || [ "$(grep LIBRARY_PATH /Users/$USER/.zshrc | grep ".brew/lib")" = "" ]
 	then
 		logp info "Adding ZSH environment variables C_INCLUDE_PATH and LIBRARY_PATH to .zshrc"
 		echo "" >> /Users/$USER/.zshrc
@@ -187,11 +187,11 @@ _handle_input()
 	# read run options
 	for ARG in $@
 	do
-		if [ "${ARG}" == "install" ]; then ACTION="install"; break; fi
-		if [ "${ARG}" == "compile" ] || [ "${ARG}" == "c" ]; then ACTION="compile"; break; fi
-		if [ "${ARG}" == "run" ] || [ "${ARG}" == "r" ]; then ACTION="run"; fi
-		if [ "${ARG}" == "compile-run" ] || [ "${ARG}" == "cr" ]; then ACTION="compile-run"; fi
-		if [ "${ARG}" == "smokebreak" ] || [ "${ARG}" == "s" ]; then ACTION="smokebreak"; fi
+		if [ "${ARG}" = "install" ]; then ACTION="install"; break; fi
+		if [ "${ARG}" = "compile" ] || [ "${ARG}" = "c" ]; then ACTION="compile"; break; fi
+		if [ "${ARG}" = "run" ] || [ "${ARG}" = "r" ]; then ACTION="run"; fi
+		if [ "${ARG}" = "compile-run" ] || [ "${ARG}" = "cr" ]; then ACTION="compile-run"; fi
+		if [ "${ARG}" = "smokebreak" ] || [ "${ARG}" = "s" ]; then ACTION="smokebreak"; fi
 	done
 
 	# read options which detail an amount
@@ -213,9 +213,9 @@ _handle_input()
 					logp warning "--- Don't forget to ADD -fsanitize=address to your flags (like -Wall -Werror -Wextra) in your libasm makefile before compiling!"
 					;;
 				r)
-					((${OPTARG} == 0)) && EXT_FLAGS="$EXT_FLAGS -D RANDOMIZED_TESTS=0"
-					((${OPTARG} == 1)) && EXT_FLAGS="$EXT_FLAGS -D RANDOMIZED_TESTS=1"
-					((${OPTARG} == 0)) || ((${OPTARG} == 1)) || _usage
+					((${OPTARG} = 0)) && EXT_FLAGS="$EXT_FLAGS -D RANDOMIZED_TESTS=0"
+					((${OPTARG} = 1)) && EXT_FLAGS="$EXT_FLAGS -D RANDOMIZED_TESTS=1"
+					((${OPTARG} = 0)) || ((${OPTARG} = 1)) || _usage
 
 					;;
 				*)

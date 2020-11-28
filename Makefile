@@ -6,7 +6,7 @@
 #    By: sverschu </var/mail/sverschu>                +#+                      #
 #                                                    +#+                       #
 #    Created: 2019/10/30 16:10:10 by sverschu      #+#    #+#                  #
-#    Updated: 2020/07/04 18:02:46 by sverschu      ########   odam.nl          #
+#    Updated: 2020/11/28 16:56:29 by sverschu      ########   odam.nl          #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,7 +21,7 @@ CC_FLAGS = -Werror -Wextra -Wall -lcriterion
 all: libasm $(NAME)
 
 $(NAME): $(SRC)
-	@$(CC) $(CC_FLAGS) $(EXT_FLAGS) -I$(LIBASM_INC) $(SRC) -o $(NAME)
+	@$(CC) $(CC_FLAGS) $(EXT_FLAGS) -I$(LIBASM_INC) -I$(LIBASM_FOLDER)/inc -I$(LIBASM_FOLDER)/Inc -I$(LIBASM_FOLDER)/Includes -I$(LIBASM_FOLDER)/includes  $(SRC) -o $(NAME)
 
 clean:
 	@$(RM) $(OBJ)
